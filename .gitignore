@@ -1,0 +1,13 @@
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+/cover.out
+var/
+vendor/
+.DS_Store
+.idea
+/database
