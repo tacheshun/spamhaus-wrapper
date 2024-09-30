@@ -7,11 +7,11 @@ import (
 )
 
 type IPDetails struct {
-	UUID         string    `json:"uuid"`
-	IPAddress    string    `json:"ipAddress"`
-	ResponseCode string    `json:"responseCode"`
-	CreatedAt    time.Time `json:"createdAt"`
-	UpdatedAt    time.Time `json:"updatedAt"`
+	UUID         string     `json:"uuid"`
+	IPAddress    string     `json:"ipAddress"`
+	ResponseCode string     `json:"responseCode"`
+	CreatedAt    *time.Time `json:"createdAt,omitempty"`
+	UpdatedAt    *time.Time `json:"updatedAt,omitempty"`
 }
 
 type Mutation struct {

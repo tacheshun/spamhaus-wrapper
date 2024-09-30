@@ -8,8 +8,12 @@ import (
 	"time"
 )
 
+type DNSResolver interface {
+	LookupIP(ctx context.Context, network, host string) ([]net.IP, error)
+}
+
 type SpamhausService struct {
-	resolver *net.Resolver
+	resolver DNSResolver
 }
 
 func NewSpamhausService() *SpamhausService {

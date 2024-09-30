@@ -98,12 +98,22 @@ func (r *IPDetailsRepository) UpdateIPDetails(details *model.IPDetails) error {
 		return err
 	}
 
+	var createdAt, updatedAt sql.NullTime
+	if details.CreatedAt != nil {
+		createdAt.Time = *details.CreatedAt
+		createdAt.Valid = true
+	}
+	if details.UpdatedAt != nil {
+		updatedAt.Time = *details.UpdatedAt
+		updatedAt.Valid = true
+	}
+
 	_, err = stmt.Exec(
 		details.UUID,
 		details.IPAddress,
 		details.ResponseCode,
-		details.CreatedAt.Format(time.RFC3339),
-		details.UpdatedAt.Format(time.RFC3339),
+		createdAt,
+		updatedAt,
 	)
 
 	if err != nil {
@@ -132,12 +142,13 @@ func (r *IPDetailsRepository) UpdateMultipleIPDetails(ctx context.Context, ips [
 				return
 			}
 
+			now := time.Now()
 			details := &model.IPDetails{
 				UUID:         generateUUID(),
 				IPAddress:    ipAddress,
 				ResponseCode: responseCode,
-				CreatedAt:    time.Now(),
-				UpdatedAt:    time.Now(),
+				CreatedAt:    &now,
+				UpdatedAt:    &now,
 			}
 
 			err = r.UpdateIPDetails(details)
@@ -168,7 +179,7 @@ func (r *IPDetailsRepository) GetIPDetails(ipAddress string) (*model.IPDetails, 
 	}
 
 	var details model.IPDetails
-	var createdAt, updatedAt string
+	var createdAt, updatedAt sql.NullTime
 
 	err = stmt.QueryRow(ipAddress).Scan(
 		&details.UUID,
@@ -179,21 +190,18 @@ func (r *IPDetailsRepository) GetIPDetails(ipAddress string) (*model.IPDetails, 
 	)
 
 	if errors.Is(err, sql.ErrNoRows) {
-		return nil, nil // No matching record found
+		return nil, nil
 	}
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to get IP details: %w", err)
 	}
 
-	details.CreatedAt, err = time.Parse(time.RFC3339, createdAt)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse created_at: %w", err)
+	if createdAt.Valid {
+		details.CreatedAt = &createdAt.Time
 	}
-
-	details.UpdatedAt, err = time.Parse(time.RFC3339, updatedAt)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse updated_at: %w", err)
+	if updatedAt.Valid {
+		details.UpdatedAt = &updatedAt.Time
 	}
 
 	return &details, nil
