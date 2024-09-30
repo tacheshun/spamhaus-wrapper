@@ -253,7 +253,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../../schema.graphql", Input: `scalar Time
+	{Name: "../schema.graphql", Input: `scalar Time
 
 type IPDetails {
     uuid: ID!
